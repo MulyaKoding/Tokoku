@@ -1,10 +1,15 @@
 export type Product = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  rating: number;
-  image: string;
-};
+  id: string | number
+  name: string
+  category: string
+  price: number
+  image: string
+  images?: string[]
+  description?: string
+  stock?: number
+  rating?: number
+}
 
-export type CartItem = Product & { qty: number };
+export type CartItem = Product & {
+  quantity: number
+}
