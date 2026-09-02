@@ -28,8 +28,8 @@ import { usePathname } from "next/navigation"
 const navLinks = [
   { label: "Beranda", href: "/" },
   { label: "Produk", href: "/products" },
-  { label: "Tentang", href: "/tentang" },
-  { label: "Kontak", href: "/#kontak" }
+  { label: "Tentang Kami", href: "/tentang" },
+  { label: "Artikel", href: "/artikel" }
 ]
 
 export default function Navbar() {
