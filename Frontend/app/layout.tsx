@@ -1,29 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { spaceGrotesk, inter } from "./theme";
+import ThemeRegistry from "./ThemeRegistry";
+import { CartProvider } from "./context/CartContext";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "UI Frame",
-  description: "Dark landing page inspired by Qronos / 21st.dev design patterns.",
+  title: "TokoKu — Gawai pilihan, harga jujur",
+  description: "Marketplace gadget dan elektronik terpercaya.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-[#050505] text-white">{children}</body>
+    <html lang="id" className={`${spaceGrotesk.variable} ${inter.variable}`}>
+      <body>
+        <ThemeRegistry>
+          <CartProvider>{children}</CartProvider>
+        </ThemeRegistry>
+      </body>
     </html>
   );
 }
