@@ -2,6 +2,7 @@
 
 import Footer from "@/app/components/layout/Footer"
 import Navbar from "@/app/components/layout/Navbar"
+import { useRouter } from "next/navigation"
 import { useCart } from "@/app/context/CartContext"
 import Link from "next/link"
 import { PRODUCTS, formatRupiah, Product } from "@/app/lib/products"
@@ -11,6 +12,7 @@ import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined"
 import {
   Autocomplete,
   Box,
+  Button,
   Chip,
   Container,
   Grid,
@@ -41,7 +43,7 @@ const ITEMS_PER_PAGE = 8
 
 export default function ProductsPage() {
   const { addToCart } = useCart()
-
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [activeCategory, setActiveCategory] = useState("Semua")
   const [sortBy, setSortBy] = useState("default")
@@ -248,35 +250,32 @@ export default function ProductsPage() {
                   </Box>
 
                   <Stack
-                    sx={{ p: 2, flexGrow: 1 }}
+                    sx={{ p: 1.5, flexGrow: 1 }}
                     justifyContent="space-between"
-                    gap={1.5}
+                    gap={1}
                   >
                     <Typography
                       sx={{
                         fontWeight: 600,
-                        fontSize: 14,
+                        fontSize: 13,
                         lineHeight: 1.3,
-                        minHeight: 36
+                        minHeight: 32
                       }}
                     >
                       {product.name}
                     </Typography>
 
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        color: "primary.main",
+                        fontSize: 14
+                      }}
                     >
-                      <Typography
-                        sx={{
-                          fontWeight: 700,
-                          color: "primary.main",
-                          fontSize: 15
-                        }}
-                      >
-                        {formatRupiah(product.price)}
-                      </Typography>
+                      {formatRupiah(product.price)}
+                    </Typography>
+
+                    <Stack direction="row" gap={0.5} justifyContent="flex-end">
                       <IconButton
                         size="small"
                         onClick={(e) => {
@@ -285,13 +284,37 @@ export default function ProductsPage() {
                           addToCart(product)
                         }}
                         sx={{
-                          bgcolor: "primary.main",
-                          color: "primary.contrastText",
-                          "&:hover": { bgcolor: "primary.dark" }
+                          border: "1px solid",
+                          borderColor: "primary.main",
+                          color: "primary.main",
+                          borderRadius: 1,
+                          p: 0.4
                         }}
                       >
-                        <ShoppingCartOutlinedIcon sx={{ fontSize: 18 }} />
+                        <ShoppingCartOutlinedIcon sx={{ fontSize: 13 }} />
                       </IconButton>
+
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          addToCart(product)
+                          router.push("/checkout")
+                        }}
+                        sx={{
+                          borderRadius: 1,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          fontSize: 11,
+                          py: 0.4,
+                          minHeight: 0,
+                          lineHeight: 1.4
+                        }}
+                      >
+                        Beli
+                      </Button>
                     </Stack>
                   </Stack>
                 </Box>
