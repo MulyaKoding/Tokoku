@@ -307,7 +307,7 @@ export default function TentangPage() {
             </Box>
 
             {timeline.map((item, idx) => {
-              const offsets = [10, 15, 5, 0] // rem, makin kecil = makin tinggi posisinya
+              const offsets = [10, 15, 5, 0]
               return (
                 <Box
                   key={item.year}
