@@ -370,7 +370,7 @@ export default function LandingPage() {
               </Button>
               <Button
                 component={Link}
-                href="/#tentang"
+                href="/tentang"
                 variant="outlined"
                 color="primary"
                 size="large"
