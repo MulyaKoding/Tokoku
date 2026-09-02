@@ -1,13 +1,14 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState } from "react"
+import Link from "next/link"
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
   Box,
+  Container,
   Stack,
   Button,
   Badge,
@@ -15,97 +16,146 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Divider,
-} from "@mui/material";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
-import { useCart } from "@/app/context/CartContext";
+  Divider
+} from "@mui/material"
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
+import MenuIcon from "@mui/icons-material/Menu"
+import CloseIcon from "@mui/icons-material/Close"
+import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined"
+import { useCart } from "@/app/context/CartContext"
 
 const navLinks = [
   { label: "Beranda", href: "/" },
   { label: "Produk", href: "/products" },
-  { label: "Tentang", href: "/#tentang" },
-  { label: "Kontak", href: "/#kontak" },
-];
+  { label: "Tentang", href: "/tentang" },
+  { label: "Kontak", href: "/#kontak" }
+]
 
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const { cartCount } = useCart();
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const { cartCount } = useCart()
 
   return (
     <>
-      <AppBar position="sticky" color="inherit" sx={{ bgcolor: "background.paper" }}>
-        <Toolbar sx={{ gap: 3, py: 1 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            gap={1}
-            component={Link}
-            href="/"
-            sx={{ textDecoration: "none", mr: 2 }}
-          >
-            <StoreOutlinedIcon sx={{ color: "primary.main" }} />
-            <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: "-0.02em", color: "text.primary" }}>
-              TokoKu
-            </Typography>
-          </Stack>
-
-          <Stack
-            direction="row"
-            gap={3}
-            sx={{ display: { xs: "none", md: "flex" }, flexGrow: 1 }}
-          >
-            {navLinks.map((link) => (
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{
+          bgcolor: "rgba(245, 246, 243, 0.85)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid",
+          borderColor: "divider"
+        }}
+      >
+        <Container maxWidth="lg" disableGutters={false}>
+          <Toolbar disableGutters sx={{ py: 1.5, minHeight: "auto" }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1}
+              component={Link}
+              href="/"
+              sx={{ textDecoration: "none", mr: { xs: 2, md: 5 } }}
+            >
+              <StoreOutlinedIcon sx={{ color: "primary.main", fontSize: 26 }} />
               <Typography
-                key={link.href}
-                component={Link}
-                href={link.href}
+                variant="h6"
                 sx={{
-                  textDecoration: "none",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: "text.secondary",
-                  "&:hover": { color: "primary.main" },
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  color: "text.primary"
                 }}
               >
-                {link.label}
+                TokoKu
               </Typography>
-            ))}
-          </Stack>
+            </Stack>
 
-          <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
+            <Stack
+              direction="row"
+              gap={4}
+              sx={{ display: { xs: "none", md: "flex" }, flexGrow: 1 }}
+            >
+              {navLinks.map((link) => (
+                <Typography
+                  key={link.href}
+                  component={Link}
+                  href={link.href}
+                  sx={{
+                    textDecoration: "none",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: "text.secondary",
+                    transition: "color 0.2s ease",
+                    "&:hover": { color: "primary.main" }
+                  }}
+                >
+                  {link.label}
+                </Typography>
+              ))}
+            </Stack>
 
-          <Button
-            component={Link}
-            href="/products"
-            variant="contained"
-            color="primary"
-            size="small"
-            sx={{ display: { xs: "none", sm: "inline-flex" } }}
-          >
-            Belanja Sekarang
-          </Button>
+            <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
 
-          <IconButton component={Link} href="/cart" sx={{ color: "text.primary" }}>
-            <Badge badgeContent={cartCount} color="secondary">
-              <ShoppingCartOutlinedIcon />
-            </Badge>
-          </IconButton>
+            <Stack direction="row" alignItems="center" gap={1.5}>
+              <Button
+                component={Link}
+                href="/products"
+                variant="contained"
+                color="primary"
+                size="medium"
+                sx={{
+                  display: { xs: "none", sm: "inline-flex" },
+                  borderRadius: 2,
+                  textTransform: "none",
+                  px: 2.5,
+                  boxShadow: "none",
+                  "&:hover": { boxShadow: "none" }
+                }}
+              >
+                Belanja Sekarang
+              </Button>
 
-          <IconButton
-            onClick={() => setMobileOpen(true)}
-            sx={{ display: { xs: "inline-flex", md: "none" }, color: "text.primary" }}
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
+              <IconButton
+                component={Link}
+                href="/cart"
+                sx={{
+                  color: "text.primary",
+                  bgcolor: "action.hover",
+                  "&:hover": { bgcolor: "action.selected" }
+                }}
+              >
+                <Badge badgeContent={cartCount} color="secondary">
+                  <ShoppingCartOutlinedIcon fontSize="small" />
+                </Badge>
+              </IconButton>
+
+              <IconButton
+                onClick={() => setMobileOpen(true)}
+                sx={{
+                  display: { xs: "inline-flex", md: "none" },
+                  color: "text.primary"
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Stack>
+          </Toolbar>
+        </Container>
       </AppBar>
 
-      <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      >
         <Box sx={{ width: 260, p: 2 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mb: 1 }}
+          >
             <Typography variant="h6">Menu</Typography>
             <IconButton onClick={() => setMobileOpen(false)}>
               <CloseIcon />
@@ -127,5 +177,5 @@ export default function Navbar() {
         </Box>
       </Drawer>
     </>
-  );
+  )
 }
