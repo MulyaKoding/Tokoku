@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Box, Container, Stack, Typography, Divider } from "@mui/material";
+import Link from "next/link"
+import { Box, Container, Stack, Typography, Divider } from "@mui/material"
 
 export default function Footer() {
   return (
@@ -17,8 +17,8 @@ export default function Footer() {
               TokoKu
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Marketplace gadget dan elektronik terkurasi dengan harga transparan
-              dan garansi resmi.
+              Marketplace gadget dan elektronik terkurasi dengan harga
+              transparan dan garansi resmi.
             </Typography>
           </Box>
 
@@ -27,10 +27,20 @@ export default function Footer() {
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
                 Belanja
               </Typography>
-              <Typography component={Link} href="/products" variant="body2" sx={{ color: "text.secondary", textDecoration: "none" }}>
+              <Typography
+                component={Link}
+                href="/products"
+                variant="body2"
+                sx={{ color: "text.secondary", textDecoration: "none" }}
+              >
                 Semua Produk
               </Typography>
-              <Typography component={Link} href="/cart" variant="body2" sx={{ color: "text.secondary", textDecoration: "none" }}>
+              <Typography
+                component={Link}
+                href="/cart"
+                variant="body2"
+                sx={{ color: "text.secondary", textDecoration: "none" }}
+              >
                 Keranjang
               </Typography>
             </Stack>
@@ -42,7 +52,7 @@ export default function Footer() {
                 cs@tokoku.id
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                0812-3456-7890
+                085218789439
               </Typography>
             </Stack>
           </Stack>
@@ -54,5 +64,5 @@ export default function Footer() {
         </Typography>
       </Container>
     </Box>
-  );
+  )
 }
