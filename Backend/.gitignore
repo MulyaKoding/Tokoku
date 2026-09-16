@@ -1,0 +1,36 @@
+# Binary yang dihasilkan build
+/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/build/
+
+# Output test
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Dependency cache (biasanya sudah dikelola go.sum, tapi vendor bisa besar)
+/vendor/
+
+# Environment variables — JANGAN pernah commit file ini!
+.env
+.env.local
+.env.*.local
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
