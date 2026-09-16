@@ -166,7 +166,7 @@ export default function ProductDetailPage() {
                   <IconButton
                     size="small"
                     onClick={() =>
-                      setQuantity((q) => Math.min(product.stock ?? 99, q + 1))
+                      setQuantity((q) => Math.min(product.stock, q + 1))
                     }
                   >
                     <AddOutlinedIcon sx={{ fontSize: 18 }} />

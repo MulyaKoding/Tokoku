@@ -3,9 +3,10 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ecommerce-system/golang-api/internal/models"
 	"github.com/ecommerce-system/golang-api/internal/repository"
+	"github.com/ecommerce-system/golang-api/internal/response"
+	"github.com/gin-gonic/gin"
 )
 
 type ProductHandler struct {
@@ -27,54 +28,59 @@ func (h *ProductHandler) RegisterRoutes(rg *gin.RouterGroup) {
 func (h *ProductHandler) GetAll(c *gin.Context) {
 	products, err := h.repo.FindAll(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusInternalServerError, "Gagal mengambil data produk", err)
 		return
 	}
-	c.JSON(http.StatusOK, products)
+	response.Success(c, http.StatusOK, "Berhasil mengambil data produk", products)
 }
 
 func (h *ProductHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+
 	product, err := h.repo.FindByID(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "product tidak ditemukan"})
+		response.Error(c, http.StatusNotFound, "Produk tidak ditemukan", err)
 		return
 	}
-	c.JSON(http.StatusOK, product)
+	response.Success(c, http.StatusOK, "Berhasil mengambil data produk", product)
 }
 
 func (h *ProductHandler) Create(c *gin.Context) {
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, "Data yang dikirim tidak valid", err)
 		return
 	}
+
 	if err := h.repo.Create(c.Request.Context(), &product); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusInternalServerError, "Gagal menyimpan produk", err)
 		return
 	}
-	c.JSON(http.StatusCreated, product)
+	response.Success(c, http.StatusCreated, "Produk berhasil dibuat", product)
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
 	id := c.Param("id")
+
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, "Data yang dikirim tidak valid", err)
 		return
 	}
+
 	if err := h.repo.Update(c.Request.Context(), id, &product); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusInternalServerError, "Gagal mengupdate produk", err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "product berhasil diupdate"})
+	response.Success(c, http.StatusOK, "Produk berhasil diupdate", nil)
 }
 
 func (h *ProductHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+
 	if err := h.repo.Delete(c.Request.Context(), id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusInternalServerError, "Gagal menghapus produk", err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "product berhasil dihapus"})
+	response.Success(c, http.StatusOK, "Produk berhasil dihapus", nil)
 }
