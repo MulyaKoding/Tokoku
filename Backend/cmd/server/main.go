@@ -2,12 +2,14 @@ package main
 
 import (
 	"log"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ecommerce-system/golang-api/internal/config"
 	"github.com/ecommerce-system/golang-api/internal/database"
 	"github.com/ecommerce-system/golang-api/internal/handler"
 	"github.com/ecommerce-system/golang-api/internal/repository"
+	"github.com/ecommerce-system/golang-api/internal/response"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -27,6 +29,10 @@ func main() {
 
 	// 4. Setup router Gin
 	router := gin.Default()
+
+	router.NoRoute(func(c *gin.Context) {
+	response.Error(c, http.StatusNotFound, "Endpoint tidak ditemukan", nil)
+})
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "db": cfg.MongoDBName})

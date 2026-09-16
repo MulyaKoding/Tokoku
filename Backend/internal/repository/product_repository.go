@@ -30,7 +30,7 @@ func (r *ProductRepository) FindAll(ctx context.Context) ([]models.Product, erro
 	}
 	defer cursor.Close(timeoutCtx)
 
-	var products []models.Product
+	products := []models.Product{}
 	if err := cursor.All(timeoutCtx, &products); err != nil {
 		return nil, err
 	}
@@ -74,9 +74,13 @@ func (r *ProductRepository) Update(ctx context.Context, id string, product *mode
 
 	update := bson.M{
 		"$set": bson.M{
-			"name":  product.Name,
-			"price": product.Price,
-			"stock": product.Stock,
+			"name":        product.Name,
+			"category":    product.Category,
+			"price":       product.Price,
+			"image":       product.Image,
+			"description": product.Description,
+			"stock":       product.Stock,
+			"rating":      product.Rating,
 		},
 	}
 	_, err = r.collection.UpdateOne(timeoutCtx, bson.M{"_id": objID}, update)
