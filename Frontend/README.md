@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tokoku — Frontend
 
-## Getting Started
+Frontend e-commerce dibuat dengan [Next.js](https://nextjs.org) (App Router) +
+MUI (Material UI), terhubung ke backend Golang + MongoDB.
 
-First, run the development server:
+## Struktur penting
+
+Frontend/
+├── app/
+│ ├── components/
+│ │ ├── layout/ # Navbar, Footer
+│ ├── context/
+│ │ ├── AuthContext.tsx # state login/auth
+│ │ └── CartContext.tsx # state keranjang belanja
+│ ├── lib/
+│ │ ├── products.ts # helper formatRupiah, tipe Product
+│ │ ├── types.ts # definisi tipe Product
+│ │ └── api.ts # fetch data produk dari backend Golang
+│ └── products/
+│ ├── page.tsx # halaman daftar produk
+│ └── [id]/page.tsx # halaman detail produk
+
+## Menjalankan secara lokal
+
+### 1. Install dependency
+
+```bash
+npm install
+```
+
+### 2. Setup environment variable
+
+Buat file `.env.local` di root folder `Frontend/`:
+
+NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+
+Sesuaikan URL kalau backend Golang jalan di port/host lain.
+
+### 3. Pastikan backend sudah jalan
+
+Data produk (nama, harga, gambar, dll) diambil dari API Golang yang connect ke
+MongoDB — lihat folder `Backend/` untuk cara menjalankannya. Backend harus
+jalan di `http://localhost:8080` (atau sesuai `NEXT_PUBLIC_API_URL` di atas)
+sebelum halaman produk bisa menampilkan data.
+
+### 4. Jalankan development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) di browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Sumber data produk
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sebelumnya data produk berupa array statis di `app/lib/products.ts`. Sekarang
+data diambil secara dinamis lewat `app/lib/api.ts` yang fetch ke endpoint:
 
-## Learn More
+- `GET {API_URL}/products` — daftar semua produk
+- `GET {API_URL}/products/:id` — detail satu produk
 
-To learn more about Next.js, take a look at the following resources:
+Fungsi `formatRupiah` di `app/lib/products.ts` tetap dipakai untuk format harga,
+tidak berubah.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Project ini di-deploy di [Vercel](https://vercel.com). Saat deploy, pastikan
+environment variable `NEXT_PUBLIC_API_URL` diarahkan ke URL backend production
+(bukan `localhost`), karena `localhost` hanya berlaku di komputer sendiri.
 
-## Deploy on Vercel
+## Belajar lebih lanjut
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [MUI Documentation](https://mui.com/material-ui/getting-started/)
