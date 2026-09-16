@@ -1,3 +1,25 @@
+# E-Commerce Golang API
+
+Backend Golang sederhana yang connect ke MongoDB Atlas (database `e_commerce`),
+dibuat dengan Gin + MongoDB Go Driver resmi.
+
+## Struktur folder
+
+Backend/
+├── cmd/
+│ ├── server/main.go # entry point aplikasi (jalankan API)
+│ └── seed/main.go # script untuk isi data awal ke MongoDB
+├── internal/
+│ ├── config/ # load .env
+│ ├── database/ # koneksi MongoDB
+│ ├── models/ # struct data (contoh: Product)
+│ ├── repository/ # query ke MongoDB (CRUD)
+│ ├── handler/ # HTTP handler (route Gin)
+│ └── response/ # format response standar (success/error)
+├── .env # konfigurasi (JANGAN di-commit ke git)
+├── .gitignore
+└── go.mod
+
 ## Cara menjalankan
 
 1. Pastikan Go sudah terinstall (versi 1.22 ke atas): `go version`
