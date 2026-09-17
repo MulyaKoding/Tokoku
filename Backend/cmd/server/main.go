@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/ecommerce-system/golang-api/internal/config"
+	"github.com/ecommerce-system/golang-api/internal/constants"
 	"github.com/ecommerce-system/golang-api/internal/database"
 	"github.com/ecommerce-system/golang-api/internal/handler"
+	"github.com/ecommerce-system/golang-api/internal/middleware"
 	"github.com/ecommerce-system/golang-api/internal/repository"
 	"github.com/ecommerce-system/golang-api/internal/response"
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,7 @@ func main() {
 	// 1. Load konfigurasi dari .env
 	cfg := config.Load()
 
-	// 2. Konek ke MongoDB (database "e_commerce")
+	// 2. Konek ke MongoDB
 	db, disconnect, err := database.Connect(cfg.MongoURI, cfg.MongoDBName)
 	if err != nil {
 		log.Fatal("Gagal konek ke MongoDB:", err)
@@ -30,15 +32,19 @@ func main() {
 	// 4. Setup router Gin
 	router := gin.Default()
 
-	router.NoRoute(func(c *gin.Context) {
-	response.Error(c, http.StatusNotFound, "Endpoint tidak ditemukan", nil)
-})
+	// Middleware CORS
+	router.Use(middleware.Cors())
 
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "db": cfg.MongoDBName})
+	router.NoRoute(func(c *gin.Context) {
+		response.Error(c, http.StatusNotFound, "Endpoint tidak ditemukan", nil)
 	})
 
-	api := router.Group("/api/v1")
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "db": cfg.MongoDBName})
+	})
+
+	// Register API v1 routes
+	api := router.Group(constants.ApiV1Group)
 	productHandler.RegisterRoutes(api)
 
 	// 5. Jalankan server
