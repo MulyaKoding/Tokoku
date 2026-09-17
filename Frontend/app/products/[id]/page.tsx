@@ -3,7 +3,8 @@
 import Navbar from "@/app/components/layout/Navbar"
 import Footer from "@/app/components/layout/Footer"
 import { useCart } from "@/app/context/CartContext"
-import { getProductById, PRODUCTS, formatRupiah } from "@/app/lib/products"
+import { useProductDetail, useProducts } from "@/app/hooks/useProducts"
+import { formatRupiah } from "@/app/lib/products"
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import RemoveOutlinedIcon from "@mui/icons-material/RemoveOutlined"
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
@@ -22,7 +23,8 @@ import {
   Chip,
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from "@mui/material"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -33,9 +35,27 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const { addToCart } = useCart()
 
-  const product = getProductById(params?.id as string | undefined)
+  const productId = params?.id as string | undefined
+  const { product, loading } = useProductDetail(productId)
+  const { products: allProducts } = useProducts()
+
   const [quantity, setQuantity] = useState(1)
   const [snackOpen, setSnackOpen] = useState(false)
+
+  if (loading) {
+    return (
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+        <Navbar />
+        <Container maxWidth="sm" sx={{ py: 15, textAlign: "center" }}>
+          <CircularProgress color="primary" />
+          <Typography sx={{ mt: 2, color: "text.secondary" }}>
+            Memuat detail produk...
+          </Typography>
+        </Container>
+        <Footer />
+      </Box>
+    )
+  }
 
   if (!product) {
     return (
@@ -54,9 +74,12 @@ export default function ProductDetailPage() {
     )
   }
 
-  const related = PRODUCTS.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  ).slice(0, 4)
+  const related = allProducts
+    .filter(
+      (p) =>
+        p.category === product.category && String(p.id) !== String(product.id)
+    )
+    .slice(0, 4)
 
   const handleAddToCart = () => {
     addToCart(product, quantity)
@@ -120,10 +143,10 @@ export default function ProductDetailPage() {
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <StarRoundedIcon sx={{ color: "#F5A623", fontSize: 20 }} />
                 <Typography sx={{ fontWeight: 600 }}>
-                  {product.rating}
+                  {product.rating ?? 4.5}
                 </Typography>
                 <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
-                  · Stok {product.stock}
+                  · Stok {product.stock ?? 10}
                 </Typography>
               </Stack>
 
@@ -137,7 +160,7 @@ export default function ProductDetailPage() {
               <Divider />
 
               <Typography sx={{ color: "text.secondary", lineHeight: 1.7 }}>
-                {product.description}
+                {product.description || "Deskripsi produk tidak tersedia."}
               </Typography>
 
               <Divider />
@@ -166,7 +189,7 @@ export default function ProductDetailPage() {
                   <IconButton
                     size="small"
                     onClick={() =>
-                      setQuantity((q) => Math.min(product.stock, q + 1))
+                      setQuantity((q) => Math.min(product.stock ?? 99, q + 1))
                     }
                   >
                     <AddOutlinedIcon sx={{ fontSize: 18 }} />

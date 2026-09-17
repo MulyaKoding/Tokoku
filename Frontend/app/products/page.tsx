@@ -4,8 +4,14 @@ import Footer from "@/app/components/layout/Footer"
 import Navbar from "@/app/components/layout/Navbar"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/app/context/CartContext"
+import { useProducts } from "@/app/hooks/useProducts"
 import Link from "next/link"
-import { PRODUCTS, formatRupiah, Product } from "@/app/lib/products"
+import { formatRupiah } from "@/app/lib/products"
+import {
+  CATEGORIES_ALL,
+  ITEMS_PER_PAGE,
+  SORT_OPTIONS
+} from "@/app/lib/constants"
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined"
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
 import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined"
@@ -14,6 +20,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Container,
   Grid,
   IconButton,
@@ -27,33 +34,28 @@ import {
 } from "@mui/material"
 import { useMemo, useState } from "react"
 
-const categories = [
-  "Semua",
-  ...Array.from(new Set(PRODUCTS.map((p) => p.category)))
-]
-
-const sortOptions = [
-  { value: "default", label: "Terbaru" },
-  { value: "price-asc", label: "Harga: Rendah ke Tinggi" },
-  { value: "price-desc", label: "Harga: Tinggi ke Rendah" },
-  { value: "name-asc", label: "Nama: A-Z" }
-]
-
-const ITEMS_PER_PAGE = 8
-
 export default function ProductsPage() {
   const { addToCart } = useCart()
   const router = useRouter()
+  const { products, loading } = useProducts()
+
   const [search, setSearch] = useState("")
-  const [activeCategory, setActiveCategory] = useState("Semua")
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES_ALL)
   const [sortBy, setSortBy] = useState("default")
   const [page, setPage] = useState(1)
-  const [categoryInput, setCategoryInput] = useState("Semua")
+  const [categoryInput, setCategoryInput] = useState(CATEGORIES_ALL)
+
+  const categories = useMemo(() => {
+    return [
+      CATEGORIES_ALL,
+      ...Array.from(new Set(products.map((p) => p.category)))
+    ]
+  }, [products])
 
   const filtered = useMemo(() => {
-    let result = [...PRODUCTS]
+    let result = [...products]
 
-    if (activeCategory !== "Semua") {
+    if (activeCategory !== CATEGORIES_ALL) {
       result = result.filter((p) => p.category === activeCategory)
     }
 
@@ -72,7 +74,7 @@ export default function ProductsPage() {
     }
 
     return result
-  }, [search, activeCategory, sortBy])
+  }, [products, search, activeCategory, sortBy])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const paginated = filtered.slice(
@@ -82,11 +84,6 @@ export default function ProductsPage() {
 
   const handleCategoryClick = (cat: string) => {
     setActiveCategory(cat)
-    setPage(1)
-  }
-
-  const handleSearchChange = (value: string) => {
-    setSearch(value)
     setPage(1)
   }
 
@@ -108,7 +105,7 @@ export default function ProductsPage() {
           </Typography>
         </Stack>
 
-        {/* Search (category autocomplete) + Sort */}
+        {/* Search & Filter */}
         <Stack direction={{ xs: "column", sm: "row" }} gap={2} sx={{ mb: 4 }}>
           <Autocomplete
             fullWidth
@@ -119,7 +116,7 @@ export default function ProductsPage() {
               setCategoryInput(newInputValue)
 
               if (reason === "clear" || newInputValue.trim() === "") {
-                handleCategoryClick("Semua")
+                handleCategoryClick(CATEGORIES_ALL)
                 return
               }
 
@@ -131,8 +128,8 @@ export default function ProductsPage() {
               }
             }}
             onChange={(_, value) => {
-              handleCategoryClick(value || "Semua")
-              setCategoryInput(value || "Semua")
+              handleCategoryClick(value || CATEGORIES_ALL)
+              setCategoryInput(value || CATEGORIES_ALL)
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -166,7 +163,7 @@ export default function ProductsPage() {
               bgcolor: "background.paper"
             }}
           >
-            {sortOptions.map((opt) => (
+            {SORT_OPTIONS.map((opt) => (
               <MenuItem key={opt.value} value={opt.value}>
                 {opt.label}
               </MenuItem>
@@ -174,166 +171,180 @@ export default function ProductsPage() {
           </Select>
         </Stack>
 
-        {/* Result count */}
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-          Menampilkan {paginated.length} dari {filtered.length} produk
-        </Typography>
-
-        {/* Product grid */}
-        {paginated.length === 0 ? (
-          <Box
-            sx={{
-              py: 8,
-              textAlign: "center",
-              color: "text.secondary"
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Produk tidak ditemukan
-            </Typography>
-            <Typography variant="body2">
-              Coba ubah kata kunci pencarian atau kategori.
+        {/* Loading Spinner */}
+        {loading ? (
+          <Box sx={{ py: 10, textAlign: "center" }}>
+            <CircularProgress color="primary" />
+            <Typography sx={{ mt: 2, color: "text.secondary" }}>
+              Memuat data produk...
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={3}>
-            {paginated.map((product) => (
-              <Grid item xs={6} sm={4} md={3} key={product.id}>
-                <Box
-                  component={Link}
-                  href={`/products/${product.id}`}
-                  sx={{
-                    bgcolor: "background.paper",
-                    borderRadius: 3,
-                    overflow: "hidden",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    textDecoration: "none",
-                    color: "inherit",
-                    transition: "transform 0.25s ease, box-shadow 0.25s ease",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 12px 24px -8px rgba(10,36,34,0.2)"
-                    }
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "relative",
-                      aspectRatio: "1 / 1",
-                      overflow: "hidden"
-                    }}
-                  >
+          <>
+            <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+              Menampilkan {paginated.length} dari {filtered.length} produk
+            </Typography>
+
+            {paginated.length === 0 ? (
+              <Box
+                sx={{
+                  py: 8,
+                  textAlign: "center",
+                  color: "text.secondary"
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Produk tidak ditemukan
+                </Typography>
+                <Typography variant="body2">
+                  Coba ubah kata kunci pencarian atau kategori.
+                </Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {paginated.map((product) => (
+                  <Grid item xs={6} sm={4} md={3} key={product.id}>
                     <Box
-                      component="img"
-                      src={product.image}
-                      alt={product.name}
+                      component={Link}
+                      href={`/products/${product.id}`}
                       sx={{
-                        width: "100%",
+                        bgcolor: "background.paper",
+                        borderRadius: 3,
+                        overflow: "hidden",
                         height: "100%",
-                        objectFit: "cover"
-                      }}
-                    />
-                    <Chip
-                      label={product.category}
-                      size="small"
-                      sx={{
-                        position: "absolute",
-                        top: 8,
-                        left: 8,
-                        bgcolor: "rgba(245,246,243,0.9)",
-                        fontWeight: 600,
-                        fontSize: 11
-                      }}
-                    />
-                  </Box>
-
-                  <Stack
-                    sx={{ p: 1.5, flexGrow: 1 }}
-                    justifyContent="space-between"
-                    gap={1}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: 13,
-                        lineHeight: 1.3,
-                        minHeight: 32
+                        display: "flex",
+                        flexDirection: "column",
+                        textDecoration: "none",
+                        color: "inherit",
+                        transition:
+                          "transform 0.25s ease, box-shadow 0.25s ease",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 12px 24px -8px rgba(10,36,34,0.2)"
+                        }
                       }}
                     >
-                      {product.name}
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        color: "primary.main",
-                        fontSize: 14
-                      }}
-                    >
-                      {formatRupiah(product.price)}
-                    </Typography>
-
-                    <Stack direction="row" gap={0.5} justifyContent="flex-end">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          addToCart(product)
-                        }}
+                      <Box
                         sx={{
-                          border: "1px solid",
-                          borderColor: "primary.main",
-                          color: "primary.main",
-                          borderRadius: 1,
-                          p: 0.4
+                          position: "relative",
+                          aspectRatio: "1 / 1",
+                          overflow: "hidden"
                         }}
                       >
-                        <ShoppingCartOutlinedIcon sx={{ fontSize: 13 }} />
-                      </IconButton>
+                        <Box
+                          component="img"
+                          src={product.image}
+                          alt={product.name}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover"
+                          }}
+                        />
+                        <Chip
+                          label={product.category}
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            top: 8,
+                            left: 8,
+                            bgcolor: "rgba(245,246,243,0.9)",
+                            fontWeight: 600,
+                            fontSize: 11
+                          }}
+                        />
+                      </Box>
 
-                      <Button
-                        variant="contained"
-                        disableElevation
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          addToCart(product)
-                          router.push("/checkout")
-                        }}
-                        sx={{
-                          borderRadius: 1,
-                          textTransform: "none",
-                          fontWeight: 600,
-                          fontSize: 11,
-                          py: 0.4,
-                          minHeight: 0,
-                          lineHeight: 1.4
-                        }}
+                      <Stack
+                        sx={{ p: 1.5, flexGrow: 1 }}
+                        justifyContent="space-between"
+                        gap={1}
                       >
-                        Beli
-                      </Button>
-                    </Stack>
-                  </Stack>
-                </Box>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: 13,
+                            lineHeight: 1.3,
+                            minHeight: 32
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            color: "primary.main",
+                            fontSize: 14
+                          }}
+                        >
+                          {formatRupiah(product.price)}
+                        </Typography>
+
+                        <Stack
+                          direction="row"
+                          gap={0.5}
+                          justifyContent="flex-end"
+                        >
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addToCart(product)
+                            }}
+                            sx={{
+                              border: "1px solid",
+                              borderColor: "primary.main",
+                              color: "primary.main",
+                              borderRadius: 1,
+                              p: 0.4
+                            }}
+                          >
+                            <ShoppingCartOutlinedIcon sx={{ fontSize: 13 }} />
+                          </IconButton>
+
+                          <Button
+                            variant="contained"
+                            disableElevation
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addToCart(product)
+                              router.push("/checkout")
+                            }}
+                            sx={{
+                              borderRadius: 1,
+                              textTransform: "none",
+                              fontWeight: 600,
+                              fontSize: 11,
+                              py: 0.4,
+                              minHeight: 0,
+                              lineHeight: 1.4
+                            }}
+                          >
+                            Beli
+                          </Button>
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-        )}
+            )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Stack alignItems="center" sx={{ mt: 5 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(_, value) => setPage(value)}
-              color="primary"
-              shape="rounded"
-            />
-          </Stack>
+            {totalPages > 1 && (
+              <Stack alignItems="center" sx={{ mt: 5 }}>
+                <Pagination
+                  count={totalPages}
+                  page={page}
+                  onChange={(_, value) => setPage(value)}
+                  color="primary"
+                  shape="rounded"
+                />
+              </Stack>
+            )}
+          </>
         )}
       </Container>
 
