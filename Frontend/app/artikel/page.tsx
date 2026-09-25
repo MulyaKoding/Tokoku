@@ -10,7 +10,6 @@ export default function ArtikelPage() {
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
-
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
         {/* Header */}
         <Stack gap={1} sx={{ mb: 5 }}>
