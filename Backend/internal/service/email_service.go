@@ -110,7 +110,7 @@ func (s *emailService) SendVerificationEmail(toEmail, toName, otpCode string) er
 	log.Println("=================================================================")
 
 	if s.smtpHost == "" || s.smtpUser == "" || s.smtpPass == "" {
-		log.Println("⚠️ [INFO] Pengiriman SMTP dilewati karena kredensial SMTP belum diatur di .env (Lihat kode OTP di atas).")
+		log.Printf("⚠️ Kredensial SMTP di .env (SMTP_USER/SMTP_PASS) belum dikonfigurasi. [DEV MODE] Kode OTP untuk %s dicetak di log terminal: %s\n", toEmail, otpCode)
 		return nil
 	}
 
@@ -140,6 +140,10 @@ func (s *emailService) SendVerificationEmail(toEmail, toName, otpCode string) er
 		conn, err := tls.Dial("tcp", addr, tlsconfig)
 		if err != nil {
 			log.Printf("❌ Gagal koneksi TLS ke SMTP %s: %v\n", addr, err)
+			if os.Getenv("APP_ENV") == "development" {
+				log.Printf("⚠️ [DEV MODE] Mengabaikan error SMTP. Kode OTP untuk %s: %s\n", toEmail, otpCode)
+				return nil
+			}
 			return err
 		}
 		defer conn.Close()
@@ -147,6 +151,10 @@ func (s *emailService) SendVerificationEmail(toEmail, toName, otpCode string) er
 		client, err := smtp.NewClient(conn, s.smtpHost)
 		if err != nil {
 			log.Printf("❌ Gagal membuat SMTP client: %v\n", err)
+			if os.Getenv("APP_ENV") == "development" {
+				log.Printf("⚠️ [DEV MODE] Mengabaikan error SMTP. Kode OTP untuk %s: %s\n", toEmail, otpCode)
+				return nil
+			}
 			return err
 		}
 		defer client.Quit()
@@ -154,6 +162,10 @@ func (s *emailService) SendVerificationEmail(toEmail, toName, otpCode string) er
 		auth := smtp.PlainAuth("", s.smtpUser, s.smtpPass, s.smtpHost)
 		if err = client.Auth(auth); err != nil {
 			log.Printf("❌ Gagal autentikasi SMTP: %v\n", err)
+			if os.Getenv("APP_ENV") == "development" {
+				log.Printf("⚠️ [DEV MODE] Mengabaikan error SMTP. Kode OTP untuk %s: %s\n", toEmail, otpCode)
+				return nil
+			}
 			return err
 		}
 
@@ -190,6 +202,10 @@ func (s *emailService) SendVerificationEmail(toEmail, toName, otpCode string) er
 	err := sendMailWithSTARTTLS(addr, auth, s.smtpUser, []string{toEmail}, []byte(message), hostName)
 	if err != nil {
 		log.Printf("❌ Gagal mengirim email SMTP ke %s: %v\n", toEmail, err)
+		if os.Getenv("APP_ENV") == "development" {
+			log.Printf("⚠️ [DEV MODE] Mengabaikan error SMTP. Kode OTP untuk %s: %s\n", toEmail, otpCode)
+			return nil
+		}
 		return err
 	}
 

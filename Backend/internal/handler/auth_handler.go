@@ -90,7 +90,10 @@ func (h *AuthHandler) RequestRegister(c *gin.Context) {
 	}
 
 	// Kirim email notifikasi kode OTP
-	_ = h.emailService.SendVerificationEmail(req.Email, req.Name, otpCode)
+	if err := h.emailService.SendVerificationEmail(req.Email, req.Name, otpCode); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Gagal mengirimkan kode OTP ke email: "+err.Error(), err)
+		return
+	}
 
 	response.Success(c, http.StatusOK, "Kode verifikasi 6-digit telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.", gin.H{
 		"email": req.Email,
@@ -173,7 +176,10 @@ func (h *AuthHandler) ResendCode(c *gin.Context) {
 		return
 	}
 
-	_ = h.emailService.SendVerificationEmail(pending.Email, pending.Name, newOTP)
+	if err := h.emailService.SendVerificationEmail(pending.Email, pending.Name, newOTP); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Gagal mengirimkan kode OTP baru ke email: "+err.Error(), err)
+		return
+	}
 
 	response.Success(c, http.StatusOK, "Kode verifikasi baru telah dikirimkan ke email Anda.", gin.H{
 		"email": pending.Email,
