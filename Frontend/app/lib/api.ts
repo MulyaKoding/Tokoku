@@ -262,7 +262,7 @@ export async function requestRegisterApi(
   name: string,
   email: string,
   password: string
-): Promise<{ success: boolean; message?: string; debugOtp?: string }> {
+): Promise<{ success: boolean; message?: string }> {
   try {
     const res = await fetch(
       `${API_BASE_URL}${API_ENDPOINTS.AUTH_REQUEST_REGISTER}`,
@@ -273,8 +273,7 @@ export async function requestRegisterApi(
       }
     )
 
-    const result: ApiResponse<{ email: string; debug_otp?: string }> =
-      await res.json()
+    const result: ApiResponse<{ email: string }> = await res.json()
     if (!res.ok || !result.success) {
       return {
         success: false,
@@ -284,8 +283,7 @@ export async function requestRegisterApi(
 
     return {
       success: true,
-      message: result.message,
-      debugOtp: result.data?.debug_otp
+      message: result.message
     }
   } catch (err: any) {
     return {
@@ -328,7 +326,7 @@ export async function verifyRegisterApi(
 
 export async function resendCodeApi(
   email: string
-): Promise<{ success: boolean; message?: string; debugOtp?: string }> {
+): Promise<{ success: boolean; message?: string }> {
   try {
     const res = await fetch(
       `${API_BASE_URL}${API_ENDPOINTS.AUTH_RESEND_CODE}`,
@@ -339,8 +337,7 @@ export async function resendCodeApi(
       }
     )
 
-    const result: ApiResponse<{ email: string; debug_otp?: string }> =
-      await res.json()
+    const result: ApiResponse<{ email: string }> = await res.json()
     if (!res.ok || !result.success) {
       return {
         success: false,
@@ -350,8 +347,7 @@ export async function resendCodeApi(
 
     return {
       success: true,
-      message: result.message,
-      debugOtp: result.data?.debug_otp
+      message: result.message
     }
   } catch (err: any) {
     return {

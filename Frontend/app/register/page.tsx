@@ -50,7 +50,6 @@ export default function RegisterPage() {
   // OTP Fields (6 digits)
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([])
-  const [devOtp, setDevOtp] = useState<string | null>(null)
 
   // Resend Timer
   const [timer, setTimer] = useState(60)
@@ -113,9 +112,6 @@ export default function RegisterPage() {
         setTimer(60)
         setCanResend(false)
         setOtp(["", "", "", "", "", ""])
-        if (res.debugOtp) {
-          setDevOtp(res.debugOtp)
-        }
         setSuccessMsg("Kode verifikasi 6 digit telah dikirim ke email Anda!")
         setTimeout(() => {
           otpInputsRef.current[0]?.focus()
@@ -210,9 +206,6 @@ export default function RegisterPage() {
         setTimer(60)
         setCanResend(false)
         setOtp(["", "", "", "", "", ""])
-        if (res.debugOtp) {
-          setDevOtp(res.debugOtp)
-        }
         setSuccessMsg("Kode verifikasi baru telah dikirimkan ke email Anda!")
         otpInputsRef.current[0]?.focus()
       } else {

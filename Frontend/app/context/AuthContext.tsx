@@ -39,14 +39,12 @@ type AuthContextType = {
     name: string,
     email: string,
     password: string
-  ) => Promise<{ success: boolean; message?: string; debugOtp?: string }>
+  ) => Promise<{ success: boolean; message?: string }>
   verifyRegister: (
     email: string,
     code: string
   ) => Promise<{ success: boolean; message?: string }>
-  resendCode: (
-    email: string
-  ) => Promise<{ success: boolean; message?: string; debugOtp?: string }>
+  resendCode: (email: string) => Promise<{ success: boolean; message?: string }>
   loginWithFacebook: () => Promise<boolean>
   logout: () => void
 }
