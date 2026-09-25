@@ -15,15 +15,25 @@ import {
   Drawer,
   List,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Avatar,
+  Menu,
+  MenuItem,
+  Tooltip
 } from "@mui/material"
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
 import MenuIcon from "@mui/icons-material/Menu"
 import CloseIcon from "@mui/icons-material/Close"
 import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined"
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline"
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined"
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined"
+import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined"
 import { useCart } from "@/app/context/CartContext"
-import { usePathname } from "next/navigation"
+import { useAuth } from "@/app/context/AuthContext"
+import { usePathname, useRouter } from "next/navigation"
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -34,9 +44,14 @@ const navLinks = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const { cartCount } = useCart()
+  const { user, isLoggedIn, logout } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
+
+  const isMenuOpen = Boolean(anchorEl)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +61,20 @@ export default function Navbar() {
     handleScroll()
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleLogout = () => {
+    handleMenuClose()
+    logout()
+    router.push("/")
+  }
 
   return (
     <>
@@ -62,7 +91,8 @@ export default function Navbar() {
           boxShadow: "none",
           py: scrolled ? 1.5 : 0,
           transition:
-            "padding 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease"
+            "padding 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease",
+          zIndex: 1100
         }}
       >
         <Container
@@ -101,7 +131,7 @@ export default function Navbar() {
                 gap={1}
                 component={Link}
                 href="/"
-                sx={{ textDecoration: "none", mr: { xs: 2, md: 5 } }}
+                sx={{ textDecoration: "none", mr: { xs: 2, md: 4 } }}
               >
                 <StoreOutlinedIcon
                   sx={{ color: "primary.main", fontSize: 26 }}
@@ -120,7 +150,7 @@ export default function Navbar() {
 
               <Stack
                 direction="row"
-                gap={4}
+                gap={3.5}
                 sx={{ display: { xs: "none", md: "flex" }, flexGrow: 1 }}
               >
                 {navLinks.map((link) => {
@@ -164,24 +194,6 @@ export default function Navbar() {
               <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
 
               <Stack direction="row" alignItems="center" gap={1.5}>
-                <Button
-                  component={Link}
-                  href="/products"
-                  variant="contained"
-                  color="primary"
-                  size="medium"
-                  sx={{
-                    display: { xs: "none", sm: "inline-flex" },
-                    borderRadius: 2,
-                    textTransform: "none",
-                    px: 2.5,
-                    boxShadow: "none",
-                    "&:hover": { boxShadow: "none" }
-                  }}
-                >
-                  Belanja Sekarang
-                </Button>
-
                 <IconButton
                   component={Link}
                   href="/cart"
@@ -195,6 +207,143 @@ export default function Navbar() {
                     <ShoppingCartOutlinedIcon fontSize="small" />
                   </Badge>
                 </IconButton>
+
+                {/* Auth State in Navbar */}
+                {isLoggedIn && user ? (
+                  <>
+                    <Tooltip title="Profil & Akun">
+                      <IconButton
+                        onClick={handleProfileMenuOpen}
+                        size="small"
+                        sx={{ ml: 0.5 }}
+                      >
+                        <Avatar
+                          alt={user.name}
+                          src={user.avatar}
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            bgcolor: "primary.main",
+                            fontSize: 14,
+                            fontWeight: 600
+                          }}
+                        >
+                          {user.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </IconButton>
+                    </Tooltip>
+
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={isMenuOpen}
+                      onClose={handleMenuClose}
+                      transformOrigin={{ horizontal: "right", vertical: "top" }}
+                      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                      PaperProps={{
+                        elevation: 3,
+                        sx: {
+                          mt: 1.5,
+                          minWidth: 200,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          overflow: "visible",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.12)"
+                        }
+                      }}
+                    >
+                      <Box sx={{ px: 2, py: 1.5 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 700 }}
+                          noWrap
+                        >
+                          {user.name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          {user.email}
+                        </Typography>
+                      </Box>
+                      <Divider />
+                      <MenuItem
+                        component={Link}
+                        href="/products"
+                        onClick={handleMenuClose}
+                      >
+                        <ListItemIcon>
+                          <StoreOutlinedIcon fontSize="small" />
+                        </ListItemIcon>
+                        Belanja Produk
+                      </MenuItem>
+                      <MenuItem
+                        component={Link}
+                        href="/cart"
+                        onClick={handleMenuClose}
+                      >
+                        <ListItemIcon>
+                          <ShoppingCartOutlinedIcon fontSize="small" />
+                        </ListItemIcon>
+                        Keranjang Belanja
+                      </MenuItem>
+                      <Divider />
+                      <MenuItem
+                        onClick={handleLogout}
+                        sx={{ color: "error.main" }}
+                      >
+                        <ListItemIcon sx={{ color: "error.main" }}>
+                          <LogoutOutlinedIcon fontSize="small" />
+                        </ListItemIcon>
+                        Keluar
+                      </MenuItem>
+                    </Menu>
+                  </>
+                ) : (
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ display: { xs: "none", sm: "flex" } }}
+                  >
+                    <Button
+                      component={Link}
+                      href="/login"
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: "none",
+                        px: 2,
+                        borderColor: "divider",
+                        color: "text.primary",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          bgcolor: "action.hover"
+                        }
+                      }}
+                    >
+                      Masuk
+                    </Button>
+                    <Button
+                      component={Link}
+                      href="/register"
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: "none",
+                        px: 2,
+                        boxShadow: "none"
+                      }}
+                    >
+                      Daftar
+                    </Button>
+                  </Stack>
+                )}
 
                 <IconButton
                   onClick={() => setMobileOpen(true)}
@@ -211,36 +360,137 @@ export default function Navbar() {
         </Container>
       </AppBar>
 
+      {/* Responsive Mobile Drawer */}
       <Drawer
         anchor="right"
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
       >
-        <Box sx={{ width: 260, p: 2 }}>
+        <Box
+          sx={{
+            width: 280,
+            p: 2.5,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%"
+          }}
+        >
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ mb: 1 }}
+            sx={{ mb: 2 }}
           >
-            <Typography variant="h6">Menu</Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <StoreOutlinedIcon sx={{ color: "primary.main" }} />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                TokoKu
+              </Typography>
+            </Stack>
             <IconButton onClick={() => setMobileOpen(false)}>
               <CloseIcon />
             </IconButton>
           </Stack>
+
+          {/* User Info / Auth Buttons in Mobile */}
+          {isLoggedIn && user ? (
+            <Box
+              sx={{
+                p: 2,
+                mb: 2,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5
+              }}
+            >
+              <Avatar
+                src={user.avatar}
+                sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+              <Box sx={{ overflow: "hidden" }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+                  {user.name}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  noWrap
+                  display="block"
+                >
+                  {user.email}
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            <Stack spacing={1} sx={{ mb: 2 }}>
+              <Button
+                component={Link}
+                href="/login"
+                variant="outlined"
+                fullWidth
+                startIcon={<LoginOutlinedIcon />}
+                onClick={() => setMobileOpen(false)}
+                sx={{ borderRadius: 2, textTransform: "none" }}
+              >
+                Masuk
+              </Button>
+              <Button
+                component={Link}
+                href="/register"
+                variant="contained"
+                fullWidth
+                startIcon={<HowToRegOutlinedIcon />}
+                onClick={() => setMobileOpen(false)}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  boxShadow: "none"
+                }}
+              >
+                Daftar Akun
+              </Button>
+            </Stack>
+          )}
+
           <Divider sx={{ mb: 1 }} />
-          <List>
+
+          <List sx={{ flexGrow: 1 }}>
             {navLinks.map((link) => (
               <ListItemButton
                 key={link.href}
                 component={Link}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
+                sx={{ borderRadius: 2, mb: 0.5 }}
               >
                 <ListItemText primary={link.label} />
               </ListItemButton>
             ))}
           </List>
+
+          {isLoggedIn && (
+            <Box sx={{ pt: 2 }}>
+              <Divider sx={{ mb: 2 }} />
+              <Button
+                variant="outlined"
+                color="error"
+                fullWidth
+                startIcon={<LogoutOutlinedIcon />}
+                onClick={() => {
+                  setMobileOpen(false)
+                  logout()
+                  router.push("/")
+                }}
+                sx={{ borderRadius: 2, textTransform: "none" }}
+              >
+                Keluar
+              </Button>
+            </Box>
+          )}
         </Box>
       </Drawer>
     </>

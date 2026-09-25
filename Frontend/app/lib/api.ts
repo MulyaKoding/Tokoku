@@ -1,4 +1,4 @@
-import type { Product } from "./types"
+import type { Product, User, AuthResponse } from "./types"
 import { API_ENDPOINTS, CURRENCY_CONFIG } from "./constants"
 
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
@@ -198,6 +198,185 @@ export async function deleteProduct(id: string): Promise<boolean> {
   } catch (err) {
     console.error("Error deleteProduct API:", err)
     return false
+  }
+}
+
+export async function loginApi(
+  email: string,
+  password: string
+): Promise<{ success: boolean; data?: AuthResponse; message?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH_LOGIN}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+
+    const result: ApiResponse<AuthResponse> = await res.json()
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Gagal masuk. Periksa email & password Anda."
+      }
+    }
+
+    return { success: true, data: result.data, message: result.message }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Gagal terhubung ke server backend"
+    }
+  }
+}
+
+export async function registerApi(
+  name: string,
+  email: string,
+  password: string
+): Promise<{ success: boolean; data?: AuthResponse; message?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH_REGISTER}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    })
+
+    const result: ApiResponse<AuthResponse> = await res.json()
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Gagal melakukan registrasi"
+      }
+    }
+
+    return { success: true, data: result.data, message: result.message }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Gagal terhubung ke server backend"
+    }
+  }
+}
+
+export async function requestRegisterApi(
+  name: string,
+  email: string,
+  password: string
+): Promise<{ success: boolean; message?: string; debugOtp?: string }> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH_REQUEST_REGISTER}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      }
+    )
+
+    const result: ApiResponse<{ email: string; debug_otp?: string }> =
+      await res.json()
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Gagal mengirimkan kode verifikasi email"
+      }
+    }
+
+    return {
+      success: true,
+      message: result.message,
+      debugOtp: result.data?.debug_otp
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Gagal terhubung ke server backend"
+    }
+  }
+}
+
+export async function verifyRegisterApi(
+  email: string,
+  code: string
+): Promise<{ success: boolean; data?: AuthResponse; message?: string }> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH_VERIFY_REGISTER}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code })
+      }
+    )
+
+    const result: ApiResponse<AuthResponse> = await res.json()
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Kode verifikasi salah atau sudah kadaluarsa"
+      }
+    }
+
+    return { success: true, data: result.data, message: result.message }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Gagal terhubung ke server backend"
+    }
+  }
+}
+
+export async function resendCodeApi(
+  email: string
+): Promise<{ success: boolean; message?: string; debugOtp?: string }> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH_RESEND_CODE}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      }
+    )
+
+    const result: ApiResponse<{ email: string; debug_otp?: string }> =
+      await res.json()
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Gagal mengirim ulang kode"
+      }
+    }
+
+    return {
+      success: true,
+      message: result.message,
+      debugOtp: result.data?.debug_otp
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Gagal terhubung ke server backend"
+    }
+  }
+}
+
+export async function getMeApi(token: string): Promise<User | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH_ME}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!res.ok) return null
+    const result: ApiResponse<User> = await res.json()
+    return result.data || null
+  } catch (err) {
+    console.error("Error getMe API:", err)
+    return null
   }
 }
 

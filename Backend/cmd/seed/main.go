@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/ecommerce-system/golang-api/internal/config"
 	"github.com/ecommerce-system/golang-api/internal/database"
 	"github.com/ecommerce-system/golang-api/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -93,8 +95,44 @@ func main() {
 
 	result, err := collection.InsertMany(context.Background(), products)
 	if err != nil {
-		log.Fatal("Gagal insert data:", err)
+		log.Fatal("Gagal insert data produk:", err)
+	}
+	log.Printf("Berhasil insert %d produk ke collection 'products'\n", len(result.InsertedIDs))
+
+	// Seed data users ke collection 'users'
+	userCollection := db.Collection("users")
+	delUsersResult, err := userCollection.DeleteMany(context.Background(), bson.M{})
+	if err != nil {
+		log.Println("Gagal membersihkan data user lama:", err)
+	} else {
+		log.Printf("Menghapus %d user lama\n", delUsersResult.DeletedCount)
 	}
 
-	log.Printf("Berhasil insert %d produk ke collection 'products'\n", len(result.InsertedIDs))
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+	users := []interface{}{
+		models.User{
+			Name:      "Administrator TokoKu",
+			Email:     "admin@tokoku.com",
+			Password:  string(hashedPassword),
+			Role:      "admin",
+			Avatar:    "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		models.User{
+			Name:      "Budi Santoso",
+			Email:     "budi@tokoku.com",
+			Password:  string(hashedPassword),
+			Role:      "user",
+			Avatar:    "https://api.dicebear.com/7.x/avataaars/svg?seed=Budi",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	userResult, err := userCollection.InsertMany(context.Background(), users)
+	if err != nil {
+		log.Fatal("Gagal insert data user:", err)
+	}
+	log.Printf("Berhasil insert %d user ke collection 'users'\n", len(userResult.InsertedIDs))
 }

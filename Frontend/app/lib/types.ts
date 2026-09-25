@@ -13,3 +13,18 @@ export type Product = {
 export type CartItem = Product & {
   quantity: number
 }
+
+export type User = {
+  id: string
+  name: string
+  email: string
+  role?: string
+  avatar?: string
+  provider?: "email" | "facebook" | "google"
+  token?: string
+}
+
+export type AuthResponse = {
+  token: string
+  user: User
+}

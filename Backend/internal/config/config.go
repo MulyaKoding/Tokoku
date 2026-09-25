@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	AppEnv     string
-	AppPort    string
-	MongoURI   string
+	AppEnv      string
+	AppPort     string
+	MongoURI    string
 	MongoDBName string
+	JWTSecret   string
 }
 
 // Load membaca file .env (jika ada) lalu mengembalikan struct Config.
@@ -27,6 +28,7 @@ func Load() *Config {
 		AppPort:     getEnv("APP_PORT", "8080"),
 		MongoURI:    getEnv("MONGO_URI", ""),
 		MongoDBName: getEnv("MONGO_DB_NAME", ""),
+		JWTSecret:   getEnv("JWT_SECRET", "tokoku_super_secret_jwt_key_2026"),
 	}
 
 	if cfg.MongoURI == "" {

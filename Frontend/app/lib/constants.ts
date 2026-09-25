@@ -24,5 +24,11 @@ export const STORAGE_KEYS = {
 
 export const API_ENDPOINTS = {
   PRODUCTS: "/products",
-  PRODUCT_BY_ID: (id: string | number) => `/products/${id}`
+  PRODUCT_BY_ID: (id: string | number) => `/products/${id}`,
+  AUTH_LOGIN: "/auth/login",
+  AUTH_REGISTER: "/auth/register",
+  AUTH_REQUEST_REGISTER: "/auth/request-register",
+  AUTH_VERIFY_REGISTER: "/auth/verify-register",
+  AUTH_RESEND_CODE: "/auth/resend-code",
+  AUTH_ME: "/auth/me"
 } as const

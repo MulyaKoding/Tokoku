@@ -4,7 +4,9 @@ import "time"
 
 const (
 	// Collection Names
-	CollectionProducts = "products"
+	CollectionProducts          = "products"
+	CollectionUsers             = "users"
+	CollectionVerificationCodes = "verification_codes"
 
 	// Timeouts
 	DefaultQueryTimeout = 5 * time.Second

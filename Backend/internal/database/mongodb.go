@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -37,5 +38,30 @@ func Connect(uri, dbName string) (*mongo.Database, func(), error) {
 		}
 	}
 
-	return client.Database(dbName), disconnect, nil
+	db := client.Database(dbName)
+	if err := InitCollections(db); err != nil {
+		log.Println("Warning inisialisasi collection:", err)
+	}
+
+	return db, disconnect, nil
+}
+
+// InitCollections memastikan koleksi dan indeks (seperti unique index email pada users) sudah terbuat di MongoDB
+func InitCollections(db *mongo.Database) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userCollection := db.Collection("users")
+
+	// Buat index unique pada field email di collection users
+	indexModel := mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err := userCollection.Indexes().CreateOne(ctx, indexModel)
+	if err != nil {
+		log.Printf("Catatan index users: %v\n", err)
+	}
+
+	return nil
 }
