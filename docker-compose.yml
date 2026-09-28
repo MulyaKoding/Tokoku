@@ -1,0 +1,46 @@
+services:
+  backend:
+    build: ./Backend
+    env_file: ./Backend/.env
+    ports: ["8080:8080"]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        # Ganti dengan URL publik backend kamu
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    ports: ["3000:3000"]
+    depends_on: [backend]
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.2.0
+    volumes: [loki-data:/loki]
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:latest
+    command: run /etc/alloy/config.alloy
+    volumes:
+      - ./monitoring/alloy-config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on: [loki]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    ports: ["3001:3000"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on: [loki]
+    restart: unless-stopped
+
+volumes:
+  loki-data:
+  grafana-data:
