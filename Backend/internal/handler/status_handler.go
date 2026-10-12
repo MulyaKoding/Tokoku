@@ -297,47 +297,12 @@ const statusHTML = `<!DOCTYPE html>
         const startTime = Date.now();
 
         async function fetchServerInfo() {
-            const hostname = window.location.hostname;
-
-            // 🔥 DOMAIN OVERRIDE
-            const forceDevelopmentDomains = [
-                "easyapi.g-sit.com",
-                "gwdev.skplasma.co.id"
-            ];
-
-            const isForceDev = forceDevelopmentDomains.includes(hostname);
-
-            const isLocal =
-                hostname === "localhost" ||
-                hostname === "127.0.0.1" ||
-                window.location.port === "8016" ||
-                window.location.port === "8080" ||
-                isForceDev;
-
-            const infoUrl = isLocal
-                ? "/api/server-info"
-                : "/client-api/api/server-info";
-
             try {
-                const response = await fetch(infoUrl);
+                const response = await fetch("/api/server-info");
                 const data = await response.json();
 
                 const duration = (Date.now() - startTime) / 1000;
-
-                // 🔥 HANDLE ROUTE NOT FOUND
-                const isRouteNotFound =
-                    data?.status === "error" &&
-                    data?.message === "Route not found";
-
-                let nodeEnv;
-
-                if (isForceDev) {
-                    nodeEnv = "development";
-                } else if (isRouteNotFound) {
-                    nodeEnv = "development";
-                } else {
-                    nodeEnv = (data.nodeEnv || "production").toLowerCase();
-                }
+                const nodeEnv = (data.nodeEnv || "production").toLowerCase();
 
                 // ================= UI UPDATE =================
 

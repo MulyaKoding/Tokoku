@@ -15,6 +15,10 @@ type ProductHandler struct {
 	repo repository.ProductRepository
 }
 
+type productHandlerInterface interface {
+	RegisterRoutes(rg *gin.RouterGroup)
+}
+
 func NewProductHandler(repo repository.ProductRepository) *ProductHandler {
 	return &ProductHandler{repo: repo}
 }
