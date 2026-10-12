@@ -8,8 +8,10 @@ import (
 )
 
 type Config struct {
+	AppName     string
 	AppEnv      string
 	AppPort     string
+	AppVersion  string
 	MongoURI    string
 	MongoDBName string
 	JWTSecret   string
@@ -24,8 +26,10 @@ func Load() *Config {
 	}
 
 	cfg := &Config{
-		AppEnv:      getEnv("APP_ENV", "development"),
+		AppName:     getEnv("APP_NAME", "API Tokoku"),
+		AppEnv:      getEnv("APP_ENV", "production"),
 		AppPort:     getEnv("APP_PORT", "8080"),
+		AppVersion:  getEnv("APP_VERSION", "1.0.0"),
 		MongoURI:    getEnv("MONGO_URI", ""),
 		MongoDBName: getEnv("MONGO_DB_NAME", ""),
 		JWTSecret:   getEnv("JWT_SECRET", "tokoku_super_secret_jwt_key_2026"),

@@ -1,0 +1,388 @@
+package handler
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/ecommerce-system/golang-api/internal/config"
+	"github.com/gin-gonic/gin"
+)
+
+type StatusHandler struct {
+	cfg *config.Config
+}
+
+func NewStatusHandler(cfg *config.Config) *StatusHandler {
+	return &StatusHandler{cfg: cfg}
+}
+
+func (h *StatusHandler) RegisterRoutes(router *gin.Engine) {
+	// Serve Halaman HTML Status
+	router.GET("/", h.GetHTML)
+	router.GET("/status", h.GetHTML)
+
+	// API Endpoint untuk server info (dibutuhkan oleh script frontend)
+	router.GET("/api/server-info", h.GetServerInfo)
+	router.GET("/client-api/api/server-info", h.GetServerInfo)
+}
+
+func (h *StatusHandler) GetHTML(c *gin.Context) {
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(statusHTML))
+}
+
+func (h *StatusHandler) GetServerInfo(c *gin.Context) {
+	loc, err := time.LoadLocation("Asia/Jakarta")
+	now := time.Now()
+	if err == nil {
+		now = now.In(loc)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"serverTime":    now.Format("Mon, 02 Jan 2006 15:04:05"),
+		"nodeEnv":       h.cfg.AppEnv,
+		"activeTraffic": true,
+		"version":       h.cfg.AppVersion,
+	})
+}
+
+const statusHTML = `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tokoku | Loading...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121416;
+            color: #eaeaea;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding-top: 80px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .title-row h1 {
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #f5f5f5;
+        }
+
+        .separator {
+            color: #f5f5f5;
+            font-size: 1.8rem;
+            opacity: 0.6;
+        }
+
+        .env-badge {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .env-badge.development {
+            background: #f4a932;
+            color: #000;
+        }
+
+        .env-badge.production {
+            background: rgb(8, 116, 99);
+            color: #fff;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            font-size: 1.1rem;
+            color: #cfcfcf;
+            margin-top: 10px;
+        }
+
+        .status-icon {
+            width: 18px;
+            height: 18px;
+            background: #4caf50;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .status-icon::before {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* CARD */
+        .info-card {
+            background: #1c1f22;
+            padding: 35px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ROW LAYOUT (DESKTOP) */
+        .info-row {
+            display: grid;
+            grid-template-columns: 220px 24px 1fr;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            text-align: right;
+            padding-right: 20px;
+            color: #9ea3a8;
+            font-size: 14px;
+        }
+
+        .info-separator {
+            text-align: center;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            color: #f2f2f2;
+        }
+
+        /* =====================================================
+   MOBILE RESPONSIVE — TARUH DI PALING BAWAH !!!
+   ===================================================== */
+        @media (max-width: 600px) {
+
+            body {
+                padding-top: 40px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .env-badge {
+                font-size: 0.9rem;
+                padding: 3px 10px;
+            }
+
+            .status-badge {
+                font-size: 0.9rem;
+                padding: 6px 14px;
+            }
+
+            .info-card {
+                padding: 20px;
+                max-width: 100%;
+            }
+
+            /* ROW JADI 1 KOLOM */
+            .info-row {
+                grid-template-columns: 1fr !important;
+                text-align: left;
+                row-gap: 4px;
+            }
+
+            .info-label {
+                text-align: left;
+                padding-right: 0;
+                font-size: 12px;
+            }
+
+            .info-separator {
+                display: none;
+            }
+
+            .info-value {
+                font-size: 14px;
+                word-break: break-word;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+
+            <div class="title-row">
+                <h1>API Tokoku</h1>
+                <span class="separator">|</span>
+                <span class="env-badge" id="envBadge">loading...</span>
+            </div>
+            <br />
+            <div class="status-badge">
+                Running <span class="status-icon"></span>
+            </div>
+
+        </div>
+
+        <div class="info-card">
+            <div class="info-row">
+                <div class="info-label">SERVER TIME</div>
+                <div class="info-separator">:</div>
+                <div class="info-value" id="serverTime">Loading...</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">RESPONSE DURATION</div>
+                <div class="info-separator">:</div>
+                <div class="info-value" id="responseDuration">Loading...</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">ACTIVE TRAFFIC</div>
+                <div class="info-separator">:</div>
+                <div class="info-value" id="activeTraffic">true</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">VERSION</div>
+                <div class="info-separator">:</div>
+                <div class="info-value" id="appVersion">1.0.0</div>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+    <script>
+        const startTime = Date.now();
+
+        async function fetchServerInfo() {
+            const hostname = window.location.hostname;
+
+            // 🔥 DOMAIN OVERRIDE
+            const forceDevelopmentDomains = [
+                "easyapi.g-sit.com",
+                "gwdev.skplasma.co.id"
+            ];
+
+            const isForceDev = forceDevelopmentDomains.includes(hostname);
+
+            const isLocal =
+                hostname === "localhost" ||
+                hostname === "127.0.0.1" ||
+                window.location.port === "8016" ||
+                window.location.port === "8080" ||
+                isForceDev;
+
+            const infoUrl = isLocal
+                ? "/api/server-info"
+                : "/client-api/api/server-info";
+
+            try {
+                const response = await fetch(infoUrl);
+                const data = await response.json();
+
+                const duration = (Date.now() - startTime) / 1000;
+
+                // 🔥 HANDLE ROUTE NOT FOUND
+                const isRouteNotFound =
+                    data?.status === "error" &&
+                    data?.message === "Route not found";
+
+                let nodeEnv;
+
+                if (isForceDev) {
+                    nodeEnv = "development";
+                } else if (isRouteNotFound) {
+                    nodeEnv = "development";
+                } else {
+                    nodeEnv = (data.nodeEnv || "production").toLowerCase();
+                }
+
+                // ================= UI UPDATE =================
+
+                document.getElementById('serverTime').textContent =
+                    data.serverTime ||
+                    moment().tz("Asia/Jakarta").format("ddd, DD MMM YYYY HH:mm:ss");
+
+                const envBadge = document.getElementById('envBadge');
+                envBadge.textContent = nodeEnv.charAt(0).toUpperCase() + nodeEnv.slice(1);
+                envBadge.className = "env-badge " + nodeEnv;
+
+                document.title = "API Tokoku | " + nodeEnv.toUpperCase();
+
+                document.getElementById('responseDuration').textContent =
+                    duration.toFixed(6) + " milliseconds";
+
+                if (data.version) {
+                    const versionEl = document.getElementById('appVersion');
+                    if (versionEl) versionEl.textContent = data.version;
+                }
+
+            } catch (error) {
+                console.error('Error fetching server info:', error);
+
+                const duration = (Date.now() - startTime) / 1000;
+
+                // 🔥 FALLBACK TOTAL → DEVELOPMENT
+                const nodeEnv = "development";
+
+                document.getElementById('serverTime').textContent =
+                    moment().tz("Asia/Jakarta").format("ddd, DD MMM YYYY HH:mm:ss");
+
+                const envBadge = document.getElementById('envBadge');
+                envBadge.textContent = "Development";
+                envBadge.className = "env-badge development";
+
+                document.title = "API Tokoku | DEVELOPMENT";
+
+                document.getElementById('responseDuration').textContent =
+                    duration.toFixed(6) + " milliseconds";
+            }
+        }
+
+        fetchServerInfo();
+    </script>
+</body>
+
+</html>`

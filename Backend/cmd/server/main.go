@@ -36,6 +36,7 @@ func main() {
 	emailService := service.NewEmailService()
 
 	authHandler := handler.NewAuthHandler(userRepo, verificationRepo, emailService, cfg.JWTSecret)
+	statusHandler := handler.NewStatusHandler(cfg)
 
 	// Setup GraphQL schema & handler
 	graphqlSchema, err := graphql.NewSchema(productRepo, userRepo, verificationRepo, emailService, cfg.JWTSecret)
@@ -54,6 +55,8 @@ func main() {
 		response.Error(c, http.StatusNotFound, "Endpoint tidak ditemukan", nil)
 	})
 
+	// Register Status & Health routes
+	statusHandler.RegisterRoutes(router)
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "db": cfg.MongoDBName})
 	})
