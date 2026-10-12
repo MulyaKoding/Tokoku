@@ -15,6 +15,12 @@ type Config struct {
 	MongoURI    string
 	MongoDBName string
 	JWTSecret   string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBSSL      bool
 }
 
 // Load membaca file .env (jika ada) lalu mengembalikan struct Config.
@@ -33,6 +39,12 @@ func Load() *Config {
 		MongoURI:    getEnv("MONGO_URI", ""),
 		MongoDBName: getEnv("MONGO_DB_NAME", ""),
 		JWTSecret:   getEnv("JWT_SECRET", "tokoku_super_secret_jwt_key_2026"),
+		DBHost:     getEnv("DB_HOST", ""),
+		DBPort:     getEnv("DB_PORT", "3306"),
+		DBUser:     getEnv("DB_USER", ""),
+		DBPassword: getEnv("DB_PASSWORD", ""),
+		DBName:     getEnv("DB_NAME", ""),
+		DBSSL:      getEnv("DB_SSL", "false") == "true",
 	}
 
 	if cfg.MongoURI == "" {

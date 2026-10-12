@@ -27,6 +27,14 @@ func main() {
 	}
 	defer disconnect()
 
+	// 2b. Konek ke MySQL/TiDB (tes koneksi)
+	sqlDB, err := database.ConnectMySQL(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSL)
+	if err != nil {
+		log.Fatal("Gagal konek ke MySQL:", err)
+	}
+	defer sqlDB.Close()
+	log.Println("Berhasil konek ke MySQL/TiDB")
+
 	// 3. Setup repository & service & handler
 	productRepo := repository.NewProductRepository(db)
 	productHandler := handler.NewProductHandler(productRepo)
