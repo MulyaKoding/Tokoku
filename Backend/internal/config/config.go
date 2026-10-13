@@ -47,11 +47,9 @@ func Load() *Config {
 		DBSSL:      getEnv("DB_SSL", "false") == "true",
 	}
 
-	if cfg.MongoURI == "" {
-		log.Fatal("MONGO_URI wajib diisi di .env")
-	}
-	if cfg.MongoDBName == "" {
-		log.Fatal("MONGO_DB_NAME wajib diisi di .env")
+	// Validasi konfigurasi database
+	if cfg.DBHost == "" && cfg.MongoURI == "" {
+		log.Fatal("DB_HOST (MySQL) atau MONGO_URI wajib diisi di .env")
 	}
 
 	return cfg

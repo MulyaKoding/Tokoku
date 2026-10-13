@@ -20,14 +20,7 @@ func main() {
 	// 1. Load konfigurasi dari .env
 	cfg := config.Load()
 
-	// 2. Konek ke MongoDB
-	db, disconnect, err := database.Connect(cfg.MongoURI, cfg.MongoDBName)
-	if err != nil {
-		log.Fatal("Gagal konek ke MongoDB:", err)
-	}
-	defer disconnect()
-
-	// 2b. Konek ke MySQL/TiDB (tes koneksi)
+	// 2. Konek ke MySQL/TiDB
 	sqlDB, err := database.ConnectMySQL(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSL)
 	if err != nil {
 		log.Fatal("Gagal konek ke MySQL:", err)
@@ -35,12 +28,12 @@ func main() {
 	defer sqlDB.Close()
 	log.Println("Berhasil konek ke MySQL/TiDB")
 
-	// 3. Setup repository & service & handler
-	productRepo := repository.NewProductRepository(db)
+	// 3. Setup repository & service & handler menggunakan MySQL
+	productRepo := repository.NewMySQLProductRepository(sqlDB)
 	productHandler := handler.NewProductHandler(productRepo)
 
-	userRepo := repository.NewUserRepository(db)
-	verificationRepo := repository.NewVerificationRepository(db)
+	userRepo := repository.NewMySQLUserRepository(sqlDB)
+	verificationRepo := repository.NewMySQLVerificationRepository(sqlDB)
 	emailService := service.NewEmailService()
 
 	authHandler := handler.NewAuthHandler(userRepo, verificationRepo, emailService, cfg.JWTSecret)
@@ -66,7 +59,7 @@ func main() {
 	// Register Status & Health routes
 	statusHandler.RegisterRoutes(router)
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "db": cfg.MongoDBName})
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "db": cfg.DBName})
 	})
 
 	// Register API v1 routes (REST)
