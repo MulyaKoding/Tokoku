@@ -21,24 +21,27 @@ import {
   Divider,
   RadioGroup,
   FormControlLabel,
-  Radio
+  Radio,
+  Chip
 } from "@mui/material"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import QrisPaymentView from "@/app/components/checkout/QrisPaymentView"
 
 const paymentMethods = [
+  {
+    value: "qris",
+    label: "QRIS Standar Nasional",
+    desc: "Scan instan via GoPay, OVO, DANA, BCA, Mandiri, dll (Bebas Biaya)",
+    badge: "Otomatis & Cepat",
+    icon: <QrCode2OutlinedIcon />
+  },
   {
     value: "bank_transfer",
     label: "Transfer Bank",
     desc: "BCA, BNI, BRI, Mandiri (Virtual Account)",
     icon: <AccountBalanceOutlinedIcon />
-  },
-  {
-    value: "qris",
-    label: "QRIS",
-    desc: "Bayar dengan scan QR dari e-wallet atau m-banking",
-    icon: <QrCode2OutlinedIcon />
   },
   {
     value: "ewallet",
@@ -72,7 +75,7 @@ export default function CheckoutPage() {
     postalCode: "",
     notes: ""
   })
-  const [payment, setPayment] = useState("bank_transfer")
+  const [payment, setPayment] = useState("qris")
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [submitting, setSubmitting] = useState(false)
 
@@ -98,7 +101,9 @@ export default function CheckoutPage() {
 
     setTimeout(() => {
       clearCart()
-      router.push(`/checkout/success?orderId=${orderId}&payment=${payment}`)
+      router.push(
+        `/checkout/success?orderId=${orderId}&payment=${payment}&amount=${totalPrice}`
+      )
     }, 800)
   }
 
@@ -217,46 +222,79 @@ export default function CheckoutPage() {
               >
                 <Stack gap={1.5}>
                   {paymentMethods.map((method) => (
-                    <Paper
-                      key={method.value}
-                      variant="outlined"
-                      onClick={() => setPayment(method.value)}
-                      sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        cursor: "pointer",
-                        borderColor:
-                          payment === method.value ? "primary.main" : "divider",
-                        bgcolor:
-                          payment === method.value
-                            ? "rgba(14,99,156,0.05)"
-                            : "transparent",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5
-                      }}
-                    >
-                      <Box sx={{ color: "primary.main", display: "flex" }}>
-                        {method.icon}
-                      </Box>
-                      <FormControlLabel
-                        value={method.value}
-                        control={<Radio />}
-                        sx={{ flexGrow: 1, m: 0 }}
-                        label={
-                          <Box>
-                            <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                              {method.label}
-                            </Typography>
-                            <Typography
-                              sx={{ fontSize: 12.5, color: "text.secondary" }}
+                    <Box key={method.value}>
+                      <Paper
+                        variant="outlined"
+                        onClick={() => setPayment(method.value)}
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 2,
+                          cursor: "pointer",
+                          borderColor:
+                            payment === method.value ? "primary.main" : "divider",
+                          bgcolor:
+                            payment === method.value
+                              ? "rgba(14,99,156,0.05)"
+                              : "transparent",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5
+                        }}
+                      >
+                        <Box sx={{ color: "primary.main", display: "flex" }}>
+                          {method.icon}
+                        </Box>
+                        <FormControlLabel
+                          value={method.value}
+                          control={<Radio />}
+                          sx={{ flexGrow: 1, m: 0 }}
+                          label={
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                width: "100%",
+                                pr: 1
+                              }}
                             >
-                              {method.desc}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                    </Paper>
+                              <Box>
+                                <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                                  {method.label}
+                                </Typography>
+                                <Typography
+                                  sx={{ fontSize: 12.5, color: "text.secondary" }}
+                                >
+                                  {method.desc}
+                                </Typography>
+                              </Box>
+                              {"badge" in method && method.badge && (
+                                <Chip
+                                  size="small"
+                                  label={method.badge}
+                                  color="primary"
+                                  sx={{
+                                    height: 22,
+                                    fontSize: 11,
+                                    fontWeight: 700
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          }
+                        />
+                      </Paper>
+
+                      {/* Tampilan QRIS Realistis ketika opsi QRIS dipilih */}
+                      {method.value === "qris" && payment === "qris" && (
+                        <QrisPaymentView
+                          amount={totalPrice}
+                          onPaidSuccess={() => {
+                            handleSubmit()
+                          }}
+                        />
+                      )}
+                    </Box>
                   ))}
                 </Stack>
               </RadioGroup>
@@ -363,7 +401,11 @@ export default function CheckoutPage() {
                 disabled={submitting}
                 onClick={handleSubmit}
               >
-                {submitting ? "Memproses..." : "Buat Pesanan"}
+                {submitting
+                  ? "Memproses..."
+                  : payment === "qris"
+                    ? "Konfirmasi Pesanan QRIS"
+                    : "Buat Pesanan"}
               </Button>
             </Paper>
           </Grid>

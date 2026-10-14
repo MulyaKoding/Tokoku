@@ -17,9 +17,11 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 
+import QrisPaymentView from "@/app/components/checkout/QrisPaymentView"
+
 const paymentLabels: Record<string, string> = {
   bank_transfer: "Transfer Bank",
-  qris: "QRIS",
+  qris: "QRIS Standar Nasional",
   ewallet: "E-Wallet",
   credit_card: "Kartu Kredit / Debit",
   cod: "Bayar di Tempat (COD)"
@@ -29,6 +31,7 @@ function SuccessContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get("orderId") || "-"
   const payment = searchParams.get("payment") || ""
+  const amount = Number(searchParams.get("amount")) || 0
 
   return (
     <Paper
@@ -42,8 +45,9 @@ function SuccessContent() {
         Pesanan Berhasil Dibuat!
       </Typography>
       <Typography sx={{ color: "text.secondary", mb: 3 }}>
-        Terima kasih sudah berbelanja di TokoKu. Kami akan segera memproses
-        pesananmu.
+        {payment === "qris"
+          ? "Silakan selesaikan pembayaran dengan scan kode QRIS di bawah ini."
+          : "Terima kasih sudah berbelanja di TokoKu. Kami akan segera memproses pesananmu."}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
@@ -59,11 +63,18 @@ function SuccessContent() {
           <Typography sx={{ color: "text.secondary" }}>
             Metode Pembayaran
           </Typography>
-          <Typography sx={{ fontWeight: 700 }}>
+          <Typography sx={{ fontWeight: 700, color: payment === "qris" ? "primary.main" : "inherit" }}>
             {paymentLabels[payment] || "-"}
           </Typography>
         </Stack>
       </Stack>
+
+      {/* Tampilan QRIS khusus jika metode pembayaran QRIS */}
+      {payment === "qris" && amount > 0 && (
+        <Box sx={{ mb: 4, textAlign: "left" }}>
+          <QrisPaymentView amount={amount} orderId={orderId} />
+        </Box>
+      )}
 
       <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
         <Button
