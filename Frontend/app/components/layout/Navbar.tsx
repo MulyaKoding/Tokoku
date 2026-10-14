@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   AppBar,
   Toolbar,
@@ -133,8 +134,16 @@ export default function Navbar() {
                 href="/"
                 sx={{ textDecoration: "none", mr: { xs: 2, md: 4 } }}
               >
-                <StoreOutlinedIcon
-                  sx={{ color: "primary.main", fontSize: 26 }}
+                <Image
+                  src="/tokoku-icon.png"
+                  alt="TokoKu Logo"
+                  width={30}
+                  height={30}
+                  priority
+                  style={{
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 2px 4px rgba(14, 99, 156, 0.25))"
+                  }}
                 />
                 <Typography
                   variant="h6"
@@ -381,8 +390,17 @@ export default function Navbar() {
             alignItems="center"
             sx={{ mb: 2 }}
           >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <StoreOutlinedIcon sx={{ color: "primary.main" }} />
+            <Stack direction="row" alignItems="center" spacing={1.2}>
+              <Image
+                src="/tokoku-icon.png"
+                alt="TokoKu Logo"
+                width={28}
+                height={28}
+                style={{
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 2px 4px rgba(14, 99, 156, 0.25))"
+                }}
+              />
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 TokoKu
               </Typography>

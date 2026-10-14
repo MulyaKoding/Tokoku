@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Box, Container, Stack, Typography, Divider } from "@mui/material"
 
 export default function Footer() {
@@ -13,9 +14,18 @@ export default function Footer() {
           sx={{ mb: 4 }}
         >
           <Box sx={{ maxWidth: 320 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              TokoKu
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+              <Image
+                src="/tokoku-icon.png"
+                alt="TokoKu Logo"
+                width={26}
+                height={26}
+                style={{ objectFit: "contain" }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                TokoKu
+              </Typography>
+            </Stack>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Marketplace gadget dan elektronik terkurasi dengan harga
               transparan dan garansi resmi.

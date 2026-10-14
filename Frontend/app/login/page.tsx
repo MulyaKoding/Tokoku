@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   Box,
@@ -112,18 +113,24 @@ export default function LoginPage() {
           >
             <Box
               sx={{
-                width: 56,
-                height: 56,
-                borderRadius: 2,
-                bgcolor: "primary.main",
+                width: 64,
+                height: 64,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#fff",
                 mb: 1
               }}
             >
-              <StoreOutlinedIcon sx={{ fontSize: 32 }} />
+              <Image
+                src="/tokoku-icon.png"
+                alt="TokoKu Logo"
+                width={64}
+                height={64}
+                style={{
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 4px 12px rgba(14, 99, 156, 0.28))"
+                }}
+              />
             </Box>
             <Typography
               variant="h4"
