@@ -5,13 +5,7 @@ import Footer from "@/app/components/layout/Footer"
 import { useCart } from "@/app/context/CartContext"
 import { useProductDetail, useProducts } from "@/app/hooks/useProducts"
 import { formatRupiah } from "@/app/lib/products"
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
-import RemoveOutlinedIcon from "@mui/icons-material/RemoveOutlined"
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined"
-import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined"
-import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined"
-import StarRoundedIcon from "@mui/icons-material/StarRounded"
+
 import {
   Box,
   Container,
@@ -19,7 +13,6 @@ import {
   Typography,
   Stack,
   Button,
-  IconButton,
   Chip,
   Divider,
   Snackbar,
@@ -38,7 +31,9 @@ export default function ProductDetailPage() {
   const productId = params?.id as string | undefined
   const { product, loading } = useProductDetail(productId)
   const { products: allProducts } = useProducts()
-
+  const productName = product?.name || "Produk"
+  const pageTitle = `${productName} - TokoKu`
+  const pageDescription = `${productName} - TokoKu`
   const [quantity, setQuantity] = useState(1)
   const [snackOpen, setSnackOpen] = useState(false)
 
@@ -99,10 +94,9 @@ export default function ProductDetailPage() {
         <Button
           component={Link}
           href="/products"
-          startIcon={<ArrowBackOutlinedIcon />}
-          sx={{ mb: 3, color: "text.secondary" }}
+          sx={{ mb: 3, color: "text.secondary", textTransform: "none" }}
         >
-          Kembali
+          ← Kembali ke Produk
         </Button>
 
         <Grid container spacing={5}>
@@ -141,7 +135,9 @@ export default function ProductDetailPage() {
               </Typography>
 
               <Stack direction="row" alignItems="center" gap={0.5}>
-                <StarRoundedIcon sx={{ color: "#F5A623", fontSize: 20 }} />
+                <Typography sx={{ color: "#F5A623", fontWeight: 700, fontSize: 16 }}>
+                  ★
+                </Typography>
                 <Typography sx={{ fontWeight: 600 }}>
                   {product.rating ?? 4.5}
                 </Typography>
@@ -177,23 +173,25 @@ export default function ProductDetailPage() {
                     borderRadius: 2
                   }}
                 >
-                  <IconButton
+                  <Button
                     size="small"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    sx={{ minWidth: 32, px: 1, fontWeight: 700, fontSize: 18 }}
                   >
-                    <RemoveOutlinedIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
+                    −
+                  </Button>
                   <Typography sx={{ px: 2, minWidth: 32, textAlign: "center" }}>
                     {quantity}
                   </Typography>
-                  <IconButton
+                  <Button
                     size="small"
                     onClick={() =>
                       setQuantity((q) => Math.min(product.stock ?? 99, q + 1))
                     }
+                    sx={{ minWidth: 32, px: 1, fontWeight: 700, fontSize: 18 }}
                   >
-                    <AddOutlinedIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
+                    +
+                  </Button>
                 </Stack>
               </Stack>
 
@@ -207,7 +205,6 @@ export default function ProductDetailPage() {
                   fullWidth
                   variant="outlined"
                   size="large"
-                  startIcon={<ShoppingCartOutlinedIcon />}
                   onClick={handleAddToCart}
                 >
                   Tambah ke Keranjang
@@ -223,22 +220,12 @@ export default function ProductDetailPage() {
               </Stack>
 
               <Stack direction="row" gap={3} sx={{ mt: 2 }}>
-                <Stack direction="row" gap={1} alignItems="center">
-                  <VerifiedOutlinedIcon
-                    sx={{ fontSize: 20, color: "primary.main" }}
-                  />
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    Garansi resmi 1 tahun
-                  </Typography>
-                </Stack>
-                <Stack direction="row" gap={1} alignItems="center">
-                  <LocalShippingOutlinedIcon
-                    sx={{ fontSize: 20, color: "primary.main" }}
-                  />
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    Gratis ongkir
-                  </Typography>
-                </Stack>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  ✓ Garansi resmi 1 tahun
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  ✓ Gratis ongkir
+                </Typography>
               </Stack>
             </Stack>
           </Grid>
